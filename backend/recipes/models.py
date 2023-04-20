@@ -11,7 +11,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=150,
         unique=True,
-        requred=True,
+        blank=False,
         verbose_name='Название')
     measure = models.CharField(
         max_length=15,
@@ -61,36 +61,36 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='recipe',
-        required=True,
+        blank=False,
         verbose_name='Автор')
 
     name = models.CharField(
         max_length=255,
-        required=True,
+        blank=False,
         verbose_name='Название')
 
     image = models.ImageField(
         upload_to='photos/%Y/%m/%d/',
-        required=True,
+        blank=False,
         verbose_name='Картинка')
 
     description = models.TextField(
         verbose_name='Описание',
-        required=True,
+        blank=False,
         help_text='Введите текст поста')
 
     ingredients = models.ManyToManyField(
         Ingredient,
-        required=True,
+        blank=False,
         verbose_name='Ингредиент',)
 
     tag = models.ManyToManyField(
         Tag,
-        required=True,
+        blank=False,
         verbose_name='Тег')
 
     cooktime = models.IntegerField(
-        required=True,
+        blank=False,
         validators=[
             validators.MinValueValidator(
                 1,
@@ -171,7 +171,7 @@ class Favorite(models.Model):
         return f'{self.user} добавил {self.recipe} в избранное.'
 
 
-class ShopList(models.Models):
+class ShopList(models.Model):
     '''Список покупок'''
     user = models.ForeignKey(
         User,

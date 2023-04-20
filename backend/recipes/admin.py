@@ -5,39 +5,47 @@ from .models import (Favorite, Ingredient, IngredientRecipe, Recipe, ShopList,
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'measure')
-    list_display_links = ('id', 'name')
-    search_fields = ('name', 'measure')
+    list_display = ('name', 'measure',)
+    search_fields = ('^name',)
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
-    list_display_links = ('id', 'user')
-    search_fields = ('user', 'recipe')
+    list_display = ('id', 'user', 'recipe',)
+    list_display_links = ('id', 'user',)
+    search_fields = ('user', 'recipe',)
 
 
 class IngredientRecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'recipe', 'ingredient', 'amount')
-    list_display_links = ('id', 'recipe', 'ingredient')
+    list_display = ('recipe', 'ingredient', 'amount')
+
+
+if not hasattr(admin, 'display'):
+    def display(empty_value):
+        def decorator(fn):
+            fn.empty_value = empty_value
+            return fn
+        return decorator
+    setattr(admin, 'display', display)
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author', 'tag', 'cooktime', 'pub_date')
-    list_display_links = ('id', 'name', 'author')
-    search_fields = ('name', 'tag')
-    prepopulated_fields = {'slug': ('name',)}
+    list_display = ('name', 'author', 'favorite_amount',)
+    search_fields = ('^name',)
+    list_filter = ('author', 'name', 'tag',)
+
+    @admin.display(empty_value='Не добавляли')
+    def favorite_amount(obj):
+        return Favorite.objects.filter(recipe=obj).count()
+
+    favorite_amount.short_description = 'Количество людей, которые добавили рецепт в избранное.'
 
 
 class ShopListAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
-    list_display_links = ('id', 'user')
-    search_fields = ('user', 'recipe')
+    list_display = ('user', 'recipe',)
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'hexcolor')
-    list_display_links = ('id', 'name')
-    search_fields = ('name', 'hexcolor')
+    list_display = ('name', 'hexcolor', 'slug',)
 
 
 admin.site.register(Favorite, FavoriteAdmin)
