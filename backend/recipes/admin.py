@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import (Favorite, Ingredient, IngredientRecipe, Recipe, ShopList,
+from .models import (Favorite, Ingredient, IngredientRecipe, Recipe, ShoppingСart,
                      Tag)
 
 
@@ -40,7 +40,7 @@ class RecipeAdmin(admin.ModelAdmin):
     favorite_amount.short_description = 'Количество людей, которые добавили рецепт в избранное.'
 
 
-class ShopListAdmin(admin.ModelAdmin):
+class ShoppingСartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
 
 
@@ -52,5 +52,5 @@ admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(IngredientRecipe, IngredientRecipeAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(ShopList, ShopListAdmin)
+admin.site.register(ShoppingСart, ShoppingСartAdmin)
 admin.site.register(Tag, TagAdmin)

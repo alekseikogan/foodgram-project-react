@@ -15,9 +15,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'recipes.apps.RecipesConfig'
+    'recipes.apps.RecipesConfig',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -83,13 +86,15 @@ USE_L10N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # LOGIN_URL = 'users:login'
 # LOGIN_REDIRECT_URL = 'posts:index'
 # PASSWORD_RESET_URL = 'users:password_reset_form'
 # PASSWORD_RESET_REDIRECT_URL = 'users:password_reset_done'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
