@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import (Favorite, Ingredient, IngredientRecipe, Recipe, ShoppingСart,
-                     Tag)
+from .models import (
+    Favorite, Ingredient, IngredientRecipe, Recipe, ShoppingСart, Tag)
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -18,7 +18,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 class IngredientRecipeAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'amount')
 
-
+# добавил, тк ругалась на module 'django.contrib.admin' has no attribute 'display'
 if not hasattr(admin, 'display'):
     def display(empty_value):
         def decorator(fn):
@@ -34,10 +34,10 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'name', 'tag',)
 
     @admin.display(empty_value='Не добавляли')
-    def favorite_amount(obj):
+    def favorite_amount(self, obj):
         return Favorite.objects.filter(recipe=obj).count()
 
-    favorite_amount.short_description = 'Количество людей, которые добавили рецепт в избранное.'
+    favorite_amount.short_description = 'Количество людей, которые добавили рецепт в избранное'
 
 
 class ShoppingСartAdmin(admin.ModelAdmin):

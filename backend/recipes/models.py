@@ -27,7 +27,7 @@ class Ingredient(models.Model):
                 name='unique_ingredient')]
 
     def __str__(self):
-        return f"Ингредиент '{self.name}'"
+        return self.name
 
 
 class Tag(models.Model):
