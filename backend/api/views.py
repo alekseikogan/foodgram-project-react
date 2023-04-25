@@ -1,23 +1,114 @@
+from pyexpat import model
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
-from rest_framework import filters, permissions, viewsets, status
+from rest_framework import filters, permissions, viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 
 from .serializers import (
-    RecipeReadSerializer, RecipeCreateSerializer, RecipeSerializer
-)
+    IngredientSerializer, RecipeReadSerializer, RecipeCreateSerializer,
+    RecipeSerializer, SetPasswordSerializer, SubscriptionsSerializer,
+    TagSerializer, UserReadSerializer, UserCreateSerializer,
+    SubscribeAuthorSerializer)
+from users.models import Subscribe, User
 from .user_permissions import IsAuthorOrReadOnly
 
+# ┌----------------------------------------------------------------------┐
+# |                         Приложение Users                             |
+# └----------------------------------------------------------------------┘
 
-# Приложение Recipes
+
+class UserViewSet(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    pagination_class = LimitOffsetPagination
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return UserReadSerializer
+        return UserCreateSerializer
+
+    @action(detail=False, methods=['get'],
+            pagination_class=None,
+            permission_classes=(IsAuthenticated,))
+    def me(self, request):
+        serializer = UserReadSerializer(request.user)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'],
+            permission_classes=(IsAuthenticated,))
+    def set_password(self, request):
+        serializer = SetPasswordSerializer(request.user, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response({'detail': 'Пароль успешно изменен!'},
+                        status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'],
+            permission_classes=(IsAuthenticated,),
+            pagination_class=LimitOffsetPagination)
+    def subscriptions(self, request):
+        queryset = User.objects.filter(subscribing__user=request.user)
+        page = self.paginate_queryset(queryset)
+        serializer = SubscriptionsSerializer(page, many=True,
+                                             context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=(IsAuthenticated,))
+    def subscribe(self, request, **kwargs):
+        author = get_object_or_404(User, id=kwargs['pk'])
+
+        if request.method == 'POST':
+            serializer = SubscribeAuthorSerializer(
+                author, data=request.data, context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            Subscribe.objects.create(user=request.user, author=author)
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            get_object_or_404(Subscribe, user=request.user,
+                              author=author).delete()
+            return Response({'detail': 'Успешная отписка'},
+                            status=status.HTTP_204_NO_CONTENT)
+
+# ┌----------------------------------------------------------------------┐
+# |                         Приложение Recipes                           |
+# └----------------------------------------------------------------------┘
+
+
+class IngredientViewSet(mixins.ListModelMixin,
+                        mixins.RetrieveModelMixin,
+                        viewsets.GenericViewSet):
+    queryset = Ingredient.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = IngredientSerializer
+    pagination_class = None
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('^name',)
+
+
+class TagViewSet(mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 viewsets.GenericViewSet):
+    queryset = Tag.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = TagSerializer
+    pagination_class = None
+
+
 class RecipeViewSet(viewsets.ModelViewSet):
     '''Создает рецепт или возвращает список рецептов'''
     queryset = Recipe.objects.all()
