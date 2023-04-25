@@ -19,7 +19,6 @@ urlpatterns = [
 
 
 
-
 # users/set_password/
 # users/me/
 # api/auth/token/login/
