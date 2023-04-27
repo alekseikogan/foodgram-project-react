@@ -1,4 +1,3 @@
-from pyexpat import model
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
@@ -11,7 +10,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
-
+from datetime import date, datetime
 from .serializers import (
     IngredientSerializer, RecipeReadSerializer, RecipeCreateSerializer,
     RecipeSerializer, SetPasswordSerializer, SubscriptionsSerializer,
@@ -184,6 +183,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         user = request.user
+        current_date = date.today()
+        current_date_time = datetime.now().time()
         if not user.shopping_cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -195,11 +196,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(amount=Sum('amount'))
 
         items_to_buy = (
-            f'Купить продукты для: {user.get_full_name()}\n'
+            f'Список продуктов для {user.get_full_name()}\n'
+            f'Дата: {current_date.strftime("%m/%d/%Y")}'
+            f'Время: {current_date_time.strftime("%H:%M:%S")}'
         )
         for ingredient in ingredients:
             items_to_buy += '\n'.join(
-                f'- {ingredient["ingredient__name"]} '
+                f'- {ingredient["ingredient__name"]}'
                 f'({ingredient["ingredient__measure"]})'
                 f' - {ingredient["amount"]}')
 
