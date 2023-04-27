@@ -190,7 +190,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         current_date = date.today()
         current_date_time = datetime.now().time()
         if not user.shopping_cart.exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'detail': 'Ваш список покупок пуст!'},
+                status=status.HTTP_400_BAD_REQUEST)
 
         ingredients = IngredientRecipe.objects.filter(
             recipe__shopping_cart__user=user
