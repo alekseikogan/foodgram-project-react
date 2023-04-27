@@ -1,6 +1,6 @@
 import base64
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core import exceptions
 from django.contrib.auth.password_validation import validate_password
@@ -9,12 +9,13 @@ from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
 from users.models import Subscribe
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
 
 # ┌----------------------------------------------------------------------┐
 # |                         Приложение Users                             |
 # └----------------------------------------------------------------------┘
+
+User = get_user_model()
+
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
@@ -26,28 +27,14 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-# из приложения Recipe для SubscriptionsSerializer
-class RecipeSerializer(serializers.ModelSerializer):
-    '''Список рецептов для отображения в избранном.'''
-    name = serializers.ReadOnlyField()
-    image = Base64ImageField(read_only=True)
-    cooktime = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name',
-                  'image', 'cooktime')
-
-
 class UserReadSerializer(UserSerializer):
     '''Вывод списка пользователей - метод GET'''
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username',
-                  'first_name', 'last_name',
-                  'is_subscribed')
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         if self.context.get('request'):
@@ -111,6 +98,19 @@ class SetPasswordSerializer(serializers.Serializer):
         instance.set_password(validated_data['new_password'])
         instance.save()
         return validated_data
+
+
+# из приложения Recipe для SubscriptionsSerializer
+class RecipeSerializer(serializers.ModelSerializer):
+    '''Список рецептов для отображения в избранном.'''
+    name = serializers.ReadOnlyField()
+    image = Base64ImageField(read_only=True)
+    cooktime = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name',
+                  'image', 'cooktime')
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):

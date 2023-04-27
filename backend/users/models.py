@@ -30,8 +30,8 @@ class Subscribe(models.Model):
         return f'{self.user.username} - {self.author.username}'
 
     class Meta:
-        verbose_name = 'Подписка на авторов'
-        verbose_name_plural = 'Подписки на авторов'
+        verbose_name = 'Кто на кого подписан'
+        verbose_name_plural = 'Кто на кого подписан'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
