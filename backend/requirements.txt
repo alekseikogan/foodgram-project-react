@@ -1,4 +1,4 @@
-Django==2.2.16
+Django==3.2.18
 django-filter
 django-debug-toolbar==3.2.4
 djangorestframework==3.12.4
@@ -24,6 +24,6 @@ pep8-naming
 
 gunicorn==20.0.4
 asgiref==3.3.2
-psycopg2-binary==2.8.6
+psycopg2-binary
 pytz==2020.1
 sqlparse==0.3.1
