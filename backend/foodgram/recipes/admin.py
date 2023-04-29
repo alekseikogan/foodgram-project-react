@@ -5,13 +5,13 @@ from .models import (
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measure',)
+    list_display = ('name', 'measurement_unit',)
+    list_filter = ('name',)
     search_fields = ('^name',)
 
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe',)
-    list_display_links = ('id', 'user',)
     search_fields = ('user', 'recipe',)
 
 
@@ -31,7 +31,7 @@ if not hasattr(admin, 'display'):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'favorite_amount',)
     search_fields = ('^name',)
-    list_filter = ('author', 'name', 'tag',)
+    list_filter = ('author', 'name', 'tags',)
 
     @admin.display(empty_value='Не добавляли')
     def favorite_amount(self, obj):
@@ -45,7 +45,7 @@ class ShoppingСartAdmin(admin.ModelAdmin):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hexcolor', 'slug',)
+    list_display = ('name', 'color', 'slug',)
 
 
 admin.site.register(Favorite, FavoriteAdmin)

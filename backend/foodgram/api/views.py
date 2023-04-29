@@ -6,13 +6,14 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import mixins, status, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from users.models import Subscribe, User
 
+from users.models import Subscribe, User
+from .filters import RecipeFilter, IngredientFilter
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, RecipeSerializer,
                           SetPasswordSerializer, SubscribeAuthorSerializer,
@@ -97,8 +98,7 @@ class IngredientViewSet(mixins.ListModelMixin,
     permission_classes = (AllowAny,)
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filterset_class = IngredientFilter
 
 
 class TagViewSet(mixins.ListModelMixin,
@@ -116,14 +116,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (
         IsAuthorOrReadOnly,
-        permissions.IsAuthenticatedOrReadOnly,
+        permissions.IsAuthenticatedOrReadOnly
     )
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     pagination_class = LimitOffsetPagination
+    http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return RecipeReadSerializer
+        print(f'метод - {self.request.method}')
         return RecipeCreateSerializer
 
     def perform_create(self, serializer):

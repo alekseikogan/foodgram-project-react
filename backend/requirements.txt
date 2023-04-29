@@ -1,4 +1,5 @@
 Django==3.2.18
+drf-base64==2.0
 django-filter
 django-debug-toolbar==3.2.4
 djangorestframework==3.12.4

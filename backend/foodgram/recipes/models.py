@@ -7,13 +7,13 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    '''Ингредиенты'''
+    '''Модель Ингредиент'''
     name = models.CharField(
         max_length=150,
         unique=True,
         blank=False,
         verbose_name='Название')
-    measure = models.CharField(
+    measurement_unit = models.CharField(
         max_length=15,
         verbose_name='Единица измерения')
 
@@ -23,7 +23,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'measure'],
+                fields=['name', 'measurement_unit'],
                 name='unique_ingredient')]
 
     def __str__(self):
@@ -31,12 +31,12 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    '''Теги'''
+    '''Модель Тег'''
     name = models.CharField(
         max_length=255,
         verbose_name='Название')
 
-    hexcolor = models.CharField(
+    color = models.CharField(
         max_length=7,
         validators=[validators.HexColorValidator()],
         verbose_name='Код цвета')
@@ -56,7 +56,7 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    '''Рецепты'''
+    '''Модель Рецепт'''
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -77,7 +77,7 @@ class Recipe(models.Model):
     description = models.TextField(
         verbose_name='Описание',
         blank=False,
-        help_text='Введите текст поста')
+        help_text='Введите текст описания')
 
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -85,12 +85,12 @@ class Recipe(models.Model):
         blank=False,
         verbose_name='Ингредиент',)
 
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         blank=False,
         verbose_name='Тег')
 
-    cooktime = models.IntegerField(
+    cooking_time = models.IntegerField(
         blank=False,
         validators=[
             validators.MinValueValidator(
@@ -144,7 +144,7 @@ class IngredientRecipe(models.Model):
                 name='unique_ingredient_in_recipe')]
 
     def __str__(self):
-        return f'{self.ingredient.name} {self.amount} {self.ingredient.measure}'
+        return f'{self.ingredient.name} {self.amount} {self.ingredient.measurement_unit}'
 
 
 class Favorite(models.Model):
@@ -178,7 +178,7 @@ class ShoppingСart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
+        related_name='shopping_user',
         verbose_name='Пользователь')
 
     recipe = models.ForeignKey(
