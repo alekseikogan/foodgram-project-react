@@ -81,6 +81,7 @@ class Recipe(models.Model):
 
     ingredients = models.ManyToManyField(
         Ingredient,
+        through='IngredientRecipe',
         blank=False,
         verbose_name='Ингредиент',)
 
@@ -111,18 +112,19 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return f"Рецепт '{self.name}'"
+        return f'Рецепт "{self.name}"'
 
 
 class IngredientRecipe(models.Model):
-    '''Промежуточная модель Ингредиент-Рецепт'''
+    '''Промежуточная модель ингредиентов в рецептах'''
     recipe = models.ForeignKey(
         Recipe,
-        related_name='ingredient_list',
+        related_name='recipe_ingredient',
         on_delete=models.CASCADE,
         verbose_name='Рецепт')
     ingredient = models.ForeignKey(
         Ingredient,
+        related_name='ingredient_recipe',
         on_delete=models.CASCADE,
         verbose_name='Ингредиент')
     amount = models.PositiveIntegerField(
@@ -142,7 +144,7 @@ class IngredientRecipe(models.Model):
                 name='unique_ingredient_in_recipe')]
 
     def __str__(self):
-        return f'{self.ingredient.name} {self.amount} {self.ingredient.measurement_unit}'
+        return f'{self.ingredient.name} {self.amount} {self.ingredient.measure}'
 
 
 class Favorite(models.Model):

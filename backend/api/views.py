@@ -193,24 +193,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 {'detail': 'Ваш список покупок пуст!'},
                 status=status.HTTP_400_BAD_REQUEST)
-
-        ingredients = IngredientRecipe.objects.filter(
-            recipe__shopping_cart__user=user
-        ).values(
-            'ingredient__name',
-            'ingredient__measure'
-        ).annotate(amount=Sum('amount'))
+        
+        ingredients = (
+            IngredientRecipe.objects
+            .filter(recipe__shopping_recipe__user=user)
+            .values('ingredient')
+            .annotate(total=Sum('amount'))
+            .values_list('ingredient__name', 'total',
+                         'ingredient__measure')
+        )
 
         items_to_buy = (
-            f'Список продуктов для {user.get_full_name()}\n'
-            f'Дата: {current_date.strftime("%m/%d/%Y")}'
-            f'Время: {current_date_time.strftime("%H:%M:%S")}'
+            f'Дата: {current_date.strftime("%d/%m/%Y")}\n'
+            f'Время: {current_date_time.strftime("%H:%M:%S")}\n\n'
+            f'{str(user)}, купи эти продукты:\n'
         )
+        i = 1
         for ingredient in ingredients:
-            items_to_buy += '\n'.join(
-                f'- {ingredient["ingredient__name"]}'
-                f'({ingredient["ingredient__measure"]})'
-                f' - {ingredient["amount"]}')
+            items_to_buy += ''.join(
+                '{}. {} - {} {}.\n'.format(i, *ingredient))
+            i += 1
 
         filename = f'{user.username}_items_to_buy.txt'
         response = HttpResponse(items_to_buy, content_type='text/plain')

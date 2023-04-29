@@ -4,6 +4,7 @@ django-debug-toolbar==3.2.4
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.7.2
 djoser==2.1.0
+python-dotenv
 mixer==7.1.2
 Pillow==9.5.0
 pytest==6.2.4
@@ -16,4 +17,13 @@ Faker==12.0.1
 
 django-cors-headers==3.13.0
 flake8==5.0.4
-dotenv
+flake8-broken-line
+flake8-return
+flake8-isort
+pep8-naming
+
+gunicorn==20.0.4
+asgiref==3.3.2
+psycopg2-binary==2.8.6
+pytz==2020.1
+sqlparse==0.3.1
