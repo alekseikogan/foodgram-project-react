@@ -63,24 +63,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='postgres'),
-        'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='StelsDelta200'),
-        'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default='5432')
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.   postgresql'),
+            'NAME': os.getenv('DB_NAME', default='postgres'),
+            'USER': os.getenv('POSTGRES_USER', default='postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='StelsDelta200'),
+            'HOST': os.getenv('DB_HOST', default='db'),
+            'PORT': os.getenv('DB_PORT', default='5432')
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,7 +109,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': [
         'rest_framework.pagination.LimitOffsetPagination'],
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 6
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -117,9 +117,9 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
 }
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = 'ru-Ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -134,7 +134,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # взаимодействие бека и фронта
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 CORS_URLS_REGEX = r'^/api/.*$'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
