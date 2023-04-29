@@ -1,5 +1,6 @@
 import base64
 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core import exceptions
@@ -282,13 +283,53 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                     f'Поле "{field}" является обязательным для заполнения!')
         if not obj.get('tag'):
             raise serializers.ValidationError(
-                'Пожалуйста, укажите как минимум 1 тег!')
+                'Пожалуйста укажите как минимум 1 тег!')
         if not obj.get('ingredients'):
             raise serializers.ValidationError(
-                'Пожалуйста, укажите как минимум 1 ингредиент!')
+                'Пожалуйста укажите как минимум 1 ингредиент!')
         '''Проверка уникальности ингредиентов'''
         inrgedients_all = [item['id'] for item in obj.get('ingredients')]
         ingredient_unicum = set(inrgedients_all)
         if len(ingredient_unicum) != len(inrgedients_all):
             raise serializers.ValidationError(
                 'Не должно быть повтора индгредиентов!')
+    
+    def create(self, validated_data):
+        author = self.context['request'].user
+        tags = validated_data.pop('tag')
+        ingredients = validated_data.pop('ingredients')
+
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tag.set(tags)
+
+        for ingredient in ingredients:
+            amount = ingredient['amount']
+            ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
+
+            IngredientRecipe.objects.create(
+                recipe=recipe,
+                ingredient=ingredient,
+                amount=amount
+            )
+        return recipe
+    
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tag', None)
+        if tags is not None:
+            instance.tag.set(tags)
+
+        ingredients = validated_data.pop('ingredients', None)
+        if ingredients is not None:
+            instance.ingredients.clear()
+
+            for ingredient in ingredients:
+                amount = ingredient['amount']
+                ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
+
+                IngredientRecipe.objects.update_or_create(
+                    recipe=instance,
+                    ingredient=ingredient,
+                    defaults={'amount': amount}
+                )
+
+        return super().update(instance, validated_data)

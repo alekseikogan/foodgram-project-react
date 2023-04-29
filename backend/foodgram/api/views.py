@@ -119,7 +119,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
     )
     filterset_class = RecipeFilter
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
