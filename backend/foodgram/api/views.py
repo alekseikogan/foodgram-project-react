@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
-from rest_framework import mixins, status, viewsets, permissions
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -112,7 +112,7 @@ class TagViewSet(mixins.ListModelMixin,
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    '''Создает рецепт или возвращает список рецептов'''
+    '''Создает рецепт или возвращает список рецептов!'''
     queryset = Recipe.objects.all()
     permission_classes = (
         IsAuthorOrReadOnly,
