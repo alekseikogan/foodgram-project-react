@@ -1,14 +1,15 @@
 import base64
-from django.db import transaction
+
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
-from django.core import exceptions
 from django.contrib.auth.password_validation import validate_password
+from django.core import exceptions
+from django.core.files.base import ContentFile
+from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
-from users.models import Subscribe
 from rest_framework import serializers
+from users.models import Subscribe
 
 # ┌----------------------------------------------------------------------┐
 # |                         Приложение Users                             |
@@ -305,7 +306,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Не должно быть повтора индгредиентов!')
         return obj
-    
+
     @transaction.atomic
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)

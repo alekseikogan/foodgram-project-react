@@ -11,9 +11,9 @@ from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
 from users.models import Subscribe, User
-from .filters import RecipeFilter, IngredientFilter
+
+from .filters import IngredientFilter, RecipeFilter
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           RecipeReadSerializer, RecipeSerializer,
                           SetPasswordSerializer, SubscribeAuthorSerializer,
@@ -85,6 +85,8 @@ class UserViewSet(mixins.CreateModelMixin,
                               author=author).delete()
             return Response({'detail': 'Успешная отписка'},
                             status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': 'Проверьте метод'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 # ----------------------------------------------------------------------
@@ -157,6 +159,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 {'detail': 'Вы успешно удалили рецепт из избранного!'},
                 status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': 'Проверьте метод'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated,),
@@ -184,6 +188,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 {'detail': 'Вы успешно удалили рецепт из списка покупок!'},
                 status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': 'Проверьте метод'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False,
             permission_classes=(IsAuthenticated,))
@@ -196,7 +202,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(
                 {'detail': 'Ваш список покупок пуст!'},
                 status=status.HTTP_400_BAD_REQUEST)
-        
+
         ingredients = (
             IngredientRecipe.objects
             .filter(recipe__shopping_recipe__user=user)

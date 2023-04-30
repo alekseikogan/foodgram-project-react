@@ -73,10 +73,12 @@ if DEBUG:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.   postgresql'),
+            'ENGINE': os.getenv('DB_ENGINE',
+                                default='django.db.backends.   postgresql'),
             'NAME': os.getenv('DB_NAME', default='postgres'),
             'USER': os.getenv('POSTGRES_USER', default='postgres'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='StelsDelta200'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD',
+                                  default='StelsDelta200'),
             'HOST': os.getenv('DB_HOST', default='db'),
             'PORT': os.getenv('DB_PORT', default='5432')
         }
@@ -84,16 +86,20 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.' +
+                'UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.' +
+                'MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.' +
+                'CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.' +
+                'NumericPasswordValidator',
     },
 ]
 
