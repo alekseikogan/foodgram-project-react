@@ -203,9 +203,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .values('ingredient')
             .annotate(total=Sum('amount'))
             .values_list('ingredient__name', 'total',
-                         'ingredient__measure')
+                         'ingredient__measurement_unit')
         )
-
         items_to_buy = (
             f'Дата: {current_date.strftime("%d/%m/%Y")}\n'
             f'Время: {current_date_time.strftime("%H:%M:%S")}\n\n'

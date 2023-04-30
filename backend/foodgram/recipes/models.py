@@ -74,7 +74,7 @@ class Recipe(models.Model):
         blank=False,
         verbose_name='Картинка')
 
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание',
         blank=False,
         help_text='Введите текст описания')
@@ -178,7 +178,7 @@ class ShoppingСart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_user',
+        related_name='shopping_cart',
         verbose_name='Пользователь')
 
     recipe = models.ForeignKey(
