@@ -106,12 +106,12 @@ class RecipeSerializer(serializers.ModelSerializer):
     '''Список рецептов для отображения в избранном'''
     name = serializers.ReadOnlyField()
     image = Base64ImageField(read_only=True)
-    cooktime = serializers.ReadOnlyField()
+    cooking_time = serializers.ReadOnlyField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'name',
-                  'image', 'cooktime')
+                  'image', 'cooking_time')
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
@@ -234,13 +234,13 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         method_name='get_is_favorited'
     )
     is_in_shopping_cart = serializers.SerializerMethodField(
-        method_name='get_is_in_shopping_car'
+        method_name='get_is_in_shopping_cart'
     )
 
     class Meta:
         model = Recipe
         fields = ('id', 'author', 'name', 'image', 'description',
-                  'ingredients', 'tag', 'cooktime', 'is_in_shopping_cart',
+                  'ingredients', 'tag', 'cooking_time', 'is_in_shopping_cart',
                   'is_favorited')
 
     def get_ingredients(self, obj):
@@ -284,7 +284,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeCreateSerializer(many=True)
     tag = serializers.PrimaryKeyRelatedField(many=True,
                                              queryset=Tag.objects.all())
-    cooktime = serializers.IntegerField()
+    cooking_time = serializers.IntegerField()
 
     class Meta:
         model = Recipe
@@ -296,7 +296,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         #     'description': {'required': True, 'allow_blank': False},
         #     'ingredients': {'required': True, 'allow_blank': False},
         #     'tag': {'required': True, 'allow_blank': False},
-        #     'cooktime': {'required': True},}
+        #     'cooking_time': {'required': True},}
 
     def validate(self, obj):
         for field in ['name', 'text', 'cooking_time']:
