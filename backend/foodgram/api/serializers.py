@@ -134,16 +134,15 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
                                          author=obj).exists())
 
     def get_recipes_amount(self, obj):
-        return obj.recipes.count()
+        return obj.recipe.count()
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
-        if limit:
-            recipes = recipes[:int(limit)]
-        serializer = RecipeSerializer(recipes, many=True, read_only=True)
-        return serializer.data
+        recipes = obj.recipe.all()
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return RecipeSerializer(recipes, many=True).data
 
 
 class SubscribeAuthorSerializer(serializers.ModelSerializer):
@@ -347,3 +346,27 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return RecipeReadSerializer(instance,
                                     context=self.context).data
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    '''Сериализатор для списка избранного'''
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            raise serializers.ValidationError({
+                'status': 'Рецепт уже есть в избранном!'
+            })
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipeSerializer(
+            instance.recipe, context=context).data
