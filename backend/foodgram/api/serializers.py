@@ -38,10 +38,11 @@ class UserReadSerializer(UserSerializer):
                   'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        if self.context.get('request'):
-            if not self.context.get('request').user.is_anonymous:
+        request = self.context.get('request')
+        if request:
+            if not request.user.is_anonymous:
                 return Subscribe.objects.filter(
-                    user=self.context.get('request').user,
+                    user=request.user,
                     author=obj).exists()
         return False
 
@@ -59,7 +60,8 @@ class UserCreateSerializer(UserCreateSerializer):
             'email': {'required': True, 'allow_blank': False},
         }
 
-    def validate(self, obj):
+    # validate было
+    def validate_username(self, value):
         '''Проверка недопустимых username'''
         invalid_usernames = ['me', 'set_password',
                              'subscriptions', 'subscribe']
@@ -67,7 +69,7 @@ class UserCreateSerializer(UserCreateSerializer):
             raise serializers.ValidationError(
                 {'username': 'Использование данного username недопустимо!'}
             )
-        return obj
+        return value
 
 
 class SetPasswordSerializer(serializers.Serializer):
@@ -129,9 +131,10 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
                   'recipes', 'recipes_amount')
 
     def get_is_subscribed(self, obj):
+        request = self.context.get('request')
         return (
-            self.context.get('request').user.is_authenticated
-            and Subscribe.objects.filter(user=self.context.get('request').user,
+            request.user.is_authenticated
+            and Subscribe.objects.filter(user=request.user,
                                          author=obj).exists())
 
     def get_recipes_amount(self, obj):
@@ -168,9 +171,10 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
         return obj
 
     def get_is_subscribed(self, obj):
+        request = self.context.get('request')
         return (
-            self.context.get('request').user.is_authenticated
-            and Subscribe.objects.filter(user=self.context.get('request').user,
+            request.user.is_authenticated
+            and Subscribe.objects.filter(user=request.user,
                                          author=obj).exists())
 
     def get_recipes_amount(self, obj):
@@ -198,21 +202,12 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
     '''Список ингредиентов для промежуточной модели'''
-    id = serializers.SerializerMethodField(
-        method_name='get_id')
-    name = serializers.SerializerMethodField(
-        method_name='get_name')
-    measurement_unit = serializers.SerializerMethodField(
-        method_name='get_measurement_unit')
-
-    def get_id(self, obj):
-        return obj.ingredient.id
-
-    def get_name(self, obj):
-        return obj.ingredient.name
-
-    def get_measurement_unit(self, obj):
-        return obj.ingredient.measurement_unit
+    id = serializers.ReadOnlyField(
+        source='ingredient.id')
+    name = serializers.ReadOnlyField(
+        source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit')
 
     class Meta:
         model = IngredientRecipe
@@ -226,6 +221,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
         many=True,
         read_only=True)
+    # здесь не менял на source, тк имеется логика выбора
+    # с фильрацией
     ingredients = serializers.SerializerMethodField(
         method_name='get_ingredients'
     )

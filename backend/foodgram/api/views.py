@@ -37,7 +37,7 @@ class UserViewSet(mixins.CreateModelMixin,
         return UserCreateSerializer
 
     @action(detail=False, methods=['get'],
-            pagination_class=None,
+            pagination_class=LimitOffsetPagination,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
         '''Профиль пользователя'''
@@ -99,7 +99,7 @@ class IngredientViewSet(mixins.ListModelMixin,
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = IngredientSerializer
-    pagination_class = None
+    pagination_class = LimitOffsetPagination
     filterset_class = IngredientFilter
 
 
@@ -110,7 +110,7 @@ class TagViewSet(mixins.ListModelMixin,
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = TagSerializer
-    pagination_class = None
+    pagination_class = LimitOffsetPagination
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -128,7 +128,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return RecipeReadSerializer
-        print(f'метод - {self.request.method}')
         return RecipeCreateSerializer
 
     def perform_create(self, serializer):
@@ -142,7 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         if request.method == 'POST':
             serializer = RecipeSerializer(recipe, data=request.data,
-                                          context={"request": request})
+                                          context={'request': request})
             serializer.is_valid(raise_exception=True)
             if not Favorite.objects.filter(user=request.user,
                                            recipe=recipe).exists():
@@ -164,7 +163,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated,),
-            pagination_class=None)
+            pagination_class=LimitOffsetPagination)
     def shopping_cart(self, request, **kwargs):
         '''Добавление или удаление рецепта из списока покупок'''
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
