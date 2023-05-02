@@ -60,12 +60,11 @@ class UserCreateSerializer(UserCreateSerializer):
             'email': {'required': True, 'allow_blank': False},
         }
 
-    # validate было
     def validate_username(self, value):
         '''Проверка недопустимых username'''
         invalid_usernames = ['me', 'set_password',
                              'subscriptions', 'subscribe']
-        if self.initial_data.get('username') in invalid_usernames:
+        if value.lower() in invalid_usernames:
             raise serializers.ValidationError(
                 {'username': 'Использование данного username недопустимо!'}
             )

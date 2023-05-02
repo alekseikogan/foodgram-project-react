@@ -143,6 +143,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = RecipeSerializer(recipe, data=request.data,
                                           context={'request': request})
             serializer.is_valid(raise_exception=True)
+            # ниже использовать FavoriteSerializer
             if not Favorite.objects.filter(user=request.user,
                                            recipe=recipe).exists():
                 Favorite.objects.create(user=request.user, recipe=recipe)
