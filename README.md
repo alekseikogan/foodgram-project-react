@@ -1,5 +1,5 @@
 # FOODGRAM - Продуктовый помощник
-![example workflow](https://github.com/alekseikogan/yamdb_foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+![example workflow](https://github.com/alekseikogan/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 ## Технологический стек
 
 [![Python](https://img.shields.io/badge/-Python-464646?style=flat-square&logo=Python)](https://www.python.org/)
