@@ -177,7 +177,7 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
                                          author=obj).exists())
 
     def get_recipes_amount(self, obj):
-        return obj.recipes.count()
+        return obj.recipe.count()
 
 
 # ┌----------------------------------------------------------------------┐
@@ -220,8 +220,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
         many=True,
         read_only=True)
-    # здесь не менял на source, тк имеется логика выбора
-    # с фильрацией
     ingredients = serializers.SerializerMethodField(
         method_name='get_ingredients'
     )
@@ -343,27 +341,3 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return RecipeReadSerializer(instance,
                                     context=self.context).data
-
-
-class FavoriteSerializer(serializers.ModelSerializer):
-    '''Сериализатор для списка избранного'''
-    class Meta:
-        model = Favorite
-        fields = ('user', 'recipe')
-
-    def validate(self, data):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        recipe = data['recipe']
-        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
-            raise serializers.ValidationError({
-                'status': 'Рецепт уже есть в избранном!'
-            })
-        return data
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return RecipeSerializer(
-            instance.recipe, context=context).data

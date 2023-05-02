@@ -1,5 +1,6 @@
 from datetime import date, datetime
 
+from django.db import IntegrityError
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -71,12 +72,13 @@ class UserViewSet(mixins.CreateModelMixin,
     def subscribe(self, request, **kwargs):
         '''Подписаться на автора'''
         author = get_object_or_404(User, id=kwargs['pk'])
+        user = self.request.user
 
         if request.method == 'POST':
             serializer = SubscribeAuthorSerializer(
-                author, data=request.data, context={"request": request})
+                author, data=request.data, context={'request': request})
             serializer.is_valid(raise_exception=True)
-            Subscribe.objects.create(user=request.user, author=author)
+            Subscribe.objects.create(user=user, author=author)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
 
@@ -140,18 +142,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         '''Добавление или удаление рецепта из избранного'''
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         if request.method == 'POST':
-            serializer = RecipeSerializer(recipe, data=request.data,
-                                          context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            # ниже использовать FavoriteSerializer
-            if not Favorite.objects.filter(user=request.user,
-                                           recipe=recipe).exists():
+            # Тань, были проблемы при передаче данных request.data в
+            # FavoriteSerializer, а потом подумал, что данный
+            # сериализатор особо нигде не применяется и решил выкинуть его,
+            # добавляя экземпляр класса Favorite с проверкой исключения при
+            # нарушении реляционной целостности базы данных.
+            try:
                 Favorite.objects.create(user=request.user, recipe=recipe)
-                return Response(serializer.data,
-                                status=status.HTTP_201_CREATED)
-            return Response({
-                'errors': 'Вы уже добавляли этот рецепт в избранное!'},
-                status=status.HTTP_400_BAD_REQUEST)
+            except IntegrityError:
+                return Response(
+                    {'errors':
+                     'Вы уже добавляли этот рецепт в список покупок!'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            serializer = RecipeSerializer(recipe)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
         if request.method == 'DELETE':
             get_object_or_404(Favorite, user=request.user,
