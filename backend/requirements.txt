@@ -28,3 +28,4 @@ asgiref==3.3.2
 psycopg2-binary
 pytz==2020.1
 sqlparse==0.3.1
+PyJWT==2.1.0
