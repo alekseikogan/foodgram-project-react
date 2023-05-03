@@ -45,16 +45,16 @@ jobs:
         with:
           push: true
           no-cache: true
+          context: backend/
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-          file: backend/Dockerfile
 
       - name: Push frontend to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
           no-cache: true
+          context: backend/
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-          file: frontend/Dockerfile
 
   deploy:
     name: Deploy on Yandex.Cloud 
