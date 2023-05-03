@@ -101,7 +101,7 @@ class IngredientViewSet(mixins.ListModelMixin,
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = IngredientSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = None
     filterset_class = IngredientFilter
 
 
@@ -111,8 +111,8 @@ class TagViewSet(mixins.ListModelMixin,
     '''Вывод одного или нескольких тегов'''
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
+    pagination_class = None
     serializer_class = TagSerializer
-    pagination_class = LimitOffsetPagination
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -142,11 +142,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         '''Добавление или удаление рецепта из избранного'''
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
         if request.method == 'POST':
-            # Тань, были проблемы при передаче данных request.data в
-            # FavoriteSerializer, а потом подумал, что данный
-            # сериализатор особо нигде не применяется и решил выкинуть его,
-            # добавляя экземпляр класса Favorite с проверкой исключения при
-            # нарушении реляционной целостности базы данных.
             try:
                 Favorite.objects.create(user=request.user, recipe=recipe)
             except IntegrityError:
