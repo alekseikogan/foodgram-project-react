@@ -56,16 +56,6 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
           file: frontend/Dockerfile
 
-      - name: Send message if build_and_push_to_docker_hub failed
-        if: ${{ failure() }}
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            Ошибка при сборке/отправке образа на DockerHub  - ${{ github.repository }}
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
   deploy:
     name: Deploy on Yandex.Cloud 
     runs-on: ubuntu-latest
