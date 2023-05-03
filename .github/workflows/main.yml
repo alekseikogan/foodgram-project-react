@@ -45,7 +45,7 @@ jobs:
         with:
           push: true
           no-cache: true
-          context: backend/
+          context: ./backend
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
       - name: Push frontend to Docker Hub
@@ -53,7 +53,7 @@ jobs:
         with:
           push: true
           no-cache: true
-          context: frontend/
+          context: ./frontend
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   deploy:
@@ -72,8 +72,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker-compose stop
-            sudo docker-compose rm -f backend
-            rm .env
+            sudo docker-compose rm backend frontend
             touch .env
             echo SECRET_KEY='${{ secrets.SECRET_KEY }}' >> .env  
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env 
