@@ -45,14 +45,14 @@ jobs:
         with:
           push: true
           tags: alekseikogan/foodgram_backend
-          file: backend/foodgram/Dockerfile
+          context: ./
 
       - name: Push frontend image to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: alekseikogan/foodgram_frontend
-          file: frontend/Dockerfile
+          context: ./
 
   deploy:
     name: Deploy on Yandex.Cloud
