@@ -29,7 +29,6 @@ jobs:
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    needs: tests
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -45,15 +44,17 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
+          no-cache: true
+          context: backend/
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-          context: ./
 
       - name: Push frontend to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
+          no-cache: true
+          context: backend/
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-          context: ./
 
   deploy:
     name: Deploy on Yandex.Cloud 
@@ -71,8 +72,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker-compose stop
-            sudo docker-compose rm -f backend frontend
-            sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_backend ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
+            sudo docker-compose rm -f backend
             rm .env
             touch .env
             echo SECRET_KEY='${{ secrets.SECRET_KEY }}' >> .env  
