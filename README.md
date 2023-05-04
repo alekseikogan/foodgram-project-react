@@ -101,7 +101,7 @@ docker-compose exec backend python manage.py collectstatic --noinput
 
 ## Сайт
 Сайт доступен по ссылке:
-[в разработке]
+[foodgraam.sytes.net](foodgraam.sytes.net)
 
 ## Разработчики
 [Коган А.М.](https://github.com/alekseikogan) - разработка бэкенда.
