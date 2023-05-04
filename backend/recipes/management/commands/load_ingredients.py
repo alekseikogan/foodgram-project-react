@@ -14,6 +14,9 @@ class Command(BaseCommand):
         ) as ingredients:
             for row in reader(ingredients):
                 if len(row) == 2:
-                    Ingredient.objects.get_or_create(
+                    if not Ingredient.objects.filter(
                         name=row[0], measurement_unit=row[1],
-                    )
+                    ).exists():
+                        Ingredient.objects.get_or_create(
+                            name=row[0], measurement_unit=row[1],
+                        )
