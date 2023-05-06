@@ -9,6 +9,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from users.models import Subscribe
 
 # ┌----------------------------------------------------------------------┐
@@ -300,6 +301,26 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Не должно быть повтора индгредиентов!')
         return obj
+    
+    def validate_ingredients(self, ingredients):
+        '''Валидация ингредиентов'''
+        if not ingredients:
+            raise ValidationError(
+                'Добавтье как минимум 1 индгедиент!'
+            )
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise ValidationError(
+                    'Количество ингредиента должно быть больше нуля!'
+                )
+
+    def validate_cooking_time(value):
+        '''Валидация времени приготовления'''
+        if value <= 0:
+            raise ValidationError(
+                'Время приготовления не может быть отрицательным!'
+            )
+        return value
 
     @transaction.atomic
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
