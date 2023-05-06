@@ -298,16 +298,15 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not obj.get('tags'):
             raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
-        #----------------
-        if not obj.get('ingredients'):
-            raise serializers.ValidationError(
-                'Пожалуйста укажите как минимум 1 ингредиент!')
-        '''Проверка уникальности ингредиентов'''
-        inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        ingredient_unicum = set(inrgedients_all)
-        if len(ingredient_unicum) != len(inrgedients_all):
-            raise serializers.ValidationError(
-                'Не должно быть повтора индгредиентов!')
+        # if not obj.get('ingredients'):
+        #     raise serializers.ValidationError(
+        #         'Пожалуйста укажите как минимум 1 ингредиент!')
+        # '''Проверка уникальности ингредиентов'''
+        # inrgedients_all = [item['id'] for item in obj.get('ingredients')]
+        # ingredient_unicum = set(inrgedients_all)
+        # if len(ingredient_unicum) != len(inrgedients_all):
+        #     raise serializers.ValidationError(
+        #         'Не должно быть повтора индгредиентов!')
         return obj
     
     def validate_ingredients(self, ingredients):
