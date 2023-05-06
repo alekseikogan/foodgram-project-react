@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 from django.core.files.base import ContentFile
+from django.core.validators import MinValueValidator
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
@@ -262,10 +263,26 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     '''Ингредиент и его количество для создания рецепта'''
     id = serializers.IntegerField()
     amount = serializers.IntegerField(min_value=1)
+    # amount = serializers.IntegerField(
+    #     validators=(
+    #         MinValueValidator(
+    #             1,
+    #             message='Количество ингредиента должно быть 1 мин или более!'
+    #         ),
+    #     )
+    # )
 
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'amount')
+
+    def validate_amount(value):
+        '''Валидация количества ингредиента'''
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Количество ингредиента не может быть меньше нуля!'
+            )
+        return value
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -277,6 +294,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
     cooking_time = serializers.IntegerField(min_value=1)
+    # cooking_time = serializers.IntegerField(
+    #     validators=(
+    #         MinValueValidator(
+    #             1,
+    #             message='Время приготовления не может быть отрицательным!'
+    #         ),
+    #     )
+    # )
 
     class Meta:
         model = Recipe
@@ -290,16 +315,41 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not obj.get('tags'):
             raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
-        if not obj.get('ingredients'):
-            raise serializers.ValidationError(
-                'Пожалуйста укажите как минимум 1 ингредиент!')
-        '''Проверка уникальности ингредиентов'''
-        inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        ingredient_unicum = set(inrgedients_all)
-        if len(ingredient_unicum) != len(inrgedients_all):
-            raise serializers.ValidationError(
-                'Не должно быть повтора индгредиентов!')
+        # if not obj.get('ingredients'):
+        #     raise serializers.ValidationError(
+        #         'Пожалуйста укажите как минимум 1 ингредиент!')
+        # '''Проверка уникальности ингредиентов'''
+        # inrgedients_all = [item['id'] for item in obj.get('ingredients')]
+        # ingredient_unicum = set(inrgedients_all)
+        # if len(ingredient_unicum) != len(inrgedients_all):
+        #     raise serializers.ValidationError(
+        #         'Не должно быть повтора индгредиентов!')
         return obj
+    
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Пожалуйста укажите как минимум 1 ингредиент!'
+            )
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше нуля!'
+                )
+        ids = [item['id'] for item in ingredients]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError(
+                'Ингредиенты в рецепте должны быть уникальными!'
+            )
+        return ingredients
+
+    def validate_cooking_time(value):
+        '''Валидация времени приготовления'''
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Время приготовления не может быть отрицательным!'
+            )
+        return value
 
     @transaction.atomic
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
