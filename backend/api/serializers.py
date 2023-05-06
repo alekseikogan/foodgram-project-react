@@ -268,13 +268,13 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ('id', 'amount')
 
-    def validate_amount(value):
-        '''Валидация количества ингредиента'''
-        if value <= 0:
-            raise serializers.ValidationError(
-                'Количество ингредиента не может быть меньше нуля!'
-            )
-        return value
+    # def validate_amount(value):
+    #     '''Валидация количества ингредиента'''
+    #     if value <= 0:
+    #         raise serializers.ValidationError(
+    #             'Количество ингредиента не может быть меньше нуля!'
+    #         )
+    #     return value
     
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -304,11 +304,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Пожалуйста укажите как минимум 1 ингредиент!')
         '''Проверка уникальности ингредиентов'''
         inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        for ingredient in inrgedients_all:
-            if int(ingredient['amount']) <= 0:
-                raise serializers.ValidationError(
-                    'Количество ингредиента должно быть больше нуля!'
-                )
+        # for ingredient in inrgedients_all:
+        #     if int(ingredient['amount']) <= 0:
+        #         raise serializers.ValidationError(
+        #             'Количество ингредиента должно быть больше нуля!'
+        #         )
         ingredient_unicum = set(inrgedients_all)
         if len(ingredient_unicum) != len(inrgedients_all):
             raise serializers.ValidationError(
@@ -326,6 +326,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
+        # если добавить тут валидацию
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше нуля!'
+                )
         IngredientRecipe.objects.bulk_create(
             [IngredientRecipe(
                 recipe=recipe,
@@ -339,11 +345,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         validated_data.pop('author')
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        # recipe = Recipe.objects.create(author=self.context['request'].user,
-        #                                **validated_data)
-        recipe = Recipe(author=self.context['request'].user,
+        recipe = Recipe.objects.create(author=self.context['request'].user,
                                        **validated_data)
-        recipe.save()
         self.tags_and_ingredients_set(recipe, tags, ingredients)
         return recipe
 
