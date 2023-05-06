@@ -268,6 +268,12 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ('id', 'amount')
 
+    def validate_amount(self, value):
+        '''Проверка колисества ингредиентов'''
+        if value < 0:
+            raise ValidationError(
+                'Количество ингредиентов должно быть больше нуля!'
+            )
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     '''Создание, изменение и удаление рецепта - методы POST, PATCH, DELETE'''
@@ -301,18 +307,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Не должно быть повтора индгредиентов!')
         return obj
-    
-    def validate_ingredients(self, ingredients):
-        '''Валидация ингредиентов'''
-        if not ingredients:
-            raise ValidationError(
-                'Добавтье как минимум 1 индгедиент!'
-            )
-        for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
-                raise ValidationError(
-                    'Количество ингредиента должно быть больше нуля!'
-                )
 
     def validate_cooking_time(value):
         '''Валидация времени приготовления'''
