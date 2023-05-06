@@ -297,7 +297,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f'Поле "{field}" является обязательным для заполнения!')
         if not obj.get('tags'):
-            raise serializers.(
+            raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
         if not obj.get('ingredients'):
             raise serializers.ValidationError(
