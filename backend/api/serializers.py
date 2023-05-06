@@ -271,7 +271,7 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     def validate_amount(value):
         '''Валидация количества ингредиента'''
         if value <= 0:
-            raise ValidationError(
+            raise serializers.ValidationError(
                 'Количество ингредиента не может быть меньше нуля!'
             )
         return value
@@ -297,7 +297,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f'Поле "{field}" является обязательным для заполнения!')
         if not obj.get('tags'):
-            raise serializers.ValidationError(
+            raise serializers.(
                 'Пожалуйста укажите как минимум 1 тег!')
         if not obj.get('ingredients'):
             raise serializers.ValidationError(
