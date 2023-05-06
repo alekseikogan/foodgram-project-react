@@ -9,6 +9,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from users.models import Subscribe
 
 # ┌----------------------------------------------------------------------┐
@@ -298,15 +299,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not obj.get('tags'):
             raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
-        # if not obj.get('ingredients'):
-        #     raise serializers.ValidationError(
-        #         'Пожалуйста укажите как минимум 1 ингредиент!')
-        # '''Проверка уникальности ингредиентов'''
-        # inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        # ingredient_unicum = set(inrgedients_all)
-        # if len(ingredient_unicum) != len(inrgedients_all):
-        #     raise serializers.ValidationError(
-        #         'Не должно быть повтора индгредиентов!')
+        #----------------
+        if not obj.get('ingredients'):
+            raise ValidationError(
+                'Пожалуйста укажите как минимум 1 ингредиент!')
+        '''Проверка уникальности ингредиентов'''
+        inrgedients_all = [item['id'] for item in obj.get('ingredients')]
+        ingredient_unicum = set(inrgedients_all)
+        if len(ingredient_unicum) != len(inrgedients_all):
+            raise ValidationError(
+                'Не должно быть повтора индгредиентов!')
         return obj
     
     def validate_ingredients(self, ingredients):
