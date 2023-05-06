@@ -275,13 +275,13 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ('id', 'amount')
 
-    # def validate_amount(value):
-    #     '''Валидация количества ингредиента'''
-    #     if value <= 0:
-    #         raise serializers.ValidationError(
-    #             'Количество ингредиента не может быть меньше нуля!'
-    #         )
-    #     return value
+    def validate_amount(value):
+        '''Валидация количества ингредиента'''
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Количество ингредиента не может быть меньше нуля!'
+            )
+        return value
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -296,7 +296,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         validators=(
             MinValueValidator(
                 1,
-                message='Время приготовления должно быть 1 мин или более!'
+                message='Время приготовления не может быть отрицательным!'
             ),
         )
     )
