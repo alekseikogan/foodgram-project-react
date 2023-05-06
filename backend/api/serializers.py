@@ -9,7 +9,6 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from users.models import Subscribe
 
 # ┌----------------------------------------------------------------------┐
@@ -299,21 +298,33 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not obj.get('tags'):
             raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
-        if not obj.get('ingredients'):
-            raise serializers.ValidationError(
-                'Пожалуйста укажите как минимум 1 ингредиент!')
-        '''Проверка уникальности ингредиентов'''
-        inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        # for ingredient in inrgedients_all:
-        #     if int(ingredient['amount']) <= 0:
-        #         raise serializers.ValidationError(
-        #             'Количество ингредиента должно быть больше нуля!'
-        #         )
-        ingredient_unicum = set(inrgedients_all)
-        if len(ingredient_unicum) != len(inrgedients_all):
-            raise serializers.ValidationError(
-                'Не должно быть повтора индгредиентов!')
+        # if not obj.get('ingredients'):
+        #     raise serializers.ValidationError(
+        #         'Пожалуйста укажите как минимум 1 ингредиент!')
+        # '''Проверка уникальности ингредиентов'''
+        # inrgedients_all = [item['id'] for item in obj.get('ingredients')]
+        # ingredient_unicum = set(inrgedients_all)
+        # if len(ingredient_unicum) != len(inrgedients_all):
+        #     raise serializers.ValidationError(
+        #         'Не должно быть повтора индгредиентов!')
         return obj
+    
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Необходимо выбрать ингредиенты!'
+            )
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше нуля!'
+                )
+        ids = [item['id'] for item in ingredients]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError(
+                'Ингредиенты в рецепте должны быть уникальными!'
+            )
+        return ingredients
 
     def validate_cooking_time(value):
         '''Валидация времени приготовления'''
@@ -326,12 +337,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def tags_and_ingredients_set(self, recipe, tags, ingredients):
         recipe.tags.set(tags)
-        # если добавить тут валидацию
-        for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
-                raise serializers.ValidationError(
-                    'Количество ингредиента должно быть больше нуля!'
-                )
         IngredientRecipe.objects.bulk_create(
             [IngredientRecipe(
                 recipe=recipe,
