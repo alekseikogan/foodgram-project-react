@@ -339,8 +339,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         validated_data.pop('author')
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(author=self.context['request'].user,
+        # recipe = Recipe.objects.create(author=self.context['request'].user,
+        #                                **validated_data)
+        recipe = Recipe(author=self.context['request'].user,
                                        **validated_data)
+        recipe.save()
         self.tags_and_ingredients_set(recipe, tags, ingredients)
         return recipe
 
