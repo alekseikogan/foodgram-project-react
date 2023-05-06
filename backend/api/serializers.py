@@ -262,14 +262,15 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     '''Ингредиент и его количество для создания рецепта'''
     id = serializers.IntegerField()
-    amount = serializers.IntegerField(
-        validators=(
-            MinValueValidator(
-                1,
-                message='Количество ингредиента должно быть 1 мин или более!'
-            ),
-        )
-    )
+    amount = serializers.IntegerField(min_value=1)
+    # amount = serializers.IntegerField(
+    #     validators=(
+    #         MinValueValidator(
+    #             1,
+    #             message='Количество ингредиента должно быть 1 мин или более!'
+    #         ),
+    #     )
+    # )
 
     class Meta:
         model = IngredientRecipe
@@ -292,14 +293,15 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeCreateSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    cooking_time = serializers.IntegerField(
-        validators=(
-            MinValueValidator(
-                1,
-                message='Время приготовления не может быть отрицательным!'
-            ),
-        )
-    )
+    cooking_time = serializers.IntegerField(min_value=1)
+    # cooking_time = serializers.IntegerField(
+    #     validators=(
+    #         MinValueValidator(
+    #             1,
+    #             message='Время приготовления не может быть отрицательным!'
+    #         ),
+    #     )
+    # )
 
     class Meta:
         model = Recipe
@@ -327,7 +329,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, ingredients):
         if not ingredients:
             raise serializers.ValidationError(
-                'Необходимо выбрать ингредиенты!'
+                'Пожалуйста укажите как минимум 1 ингредиент!'
             )
         for ingredient in ingredients:
             if int(ingredient['amount']) <= 0:
