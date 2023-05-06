@@ -295,16 +295,24 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Пожалуйста укажите как минимум 1 ингредиент!')
         '''Проверка уникальности ингредиентов'''
         inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        for ingredient in inrgedients_all:
-            if int(ingredient['amount']) <= 0:
-                raise ValidationError(
-                    'Количество ингредиента должно быть больше нуля!'
-                )
         ingredient_unicum = set(inrgedients_all)
         if len(ingredient_unicum) != len(inrgedients_all):
             raise serializers.ValidationError(
                 'Не должно быть повтора индгредиентов!')
         return obj
+    
+    def validate_ingredients(self, value):
+        if not value:
+            raise ValidationError(
+                'Необходимо выбрать ингредиенты!'
+            )
+        for ingredient in value:
+            if int(ingredient['amount']) <= 0:
+                raise ValidationError(
+                    'Количество ингредиента должно быть больше нуля!'
+                )
+        ids = [item['id'] for item in value]
+        return value
 
     def validate_cooking_time(value):
         '''Валидация времени приготовления'''
