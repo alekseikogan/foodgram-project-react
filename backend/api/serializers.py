@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 from django.core.files.base import ContentFile
+from django.core.validators import MinValueValidator
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
@@ -261,7 +262,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     '''Ингредиент и его количество для создания рецепта'''
     id = serializers.IntegerField()
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(
+        validators=(
+            MinValueValidator(
+                1,
+                message='Количество ингредиента должно быть 1 мин или более!'
+            ),
+        )
+    )
 
     class Meta:
         model = IngredientRecipe
@@ -274,7 +282,7 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     #             'Количество ингредиента не может быть меньше нуля!'
     #         )
     #     return value
-    
+
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     '''Создание, изменение и удаление рецепта - методы POST, PATCH, DELETE'''
@@ -284,7 +292,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeCreateSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
-    cooking_time = serializers.IntegerField()
+    cooking_time = serializers.IntegerField(
+        validators=(
+            MinValueValidator(
+                1,
+                message='Время приготовления должно быть 1 мин или более!'
+            ),
+        )
+    )
 
     class Meta:
         model = Recipe
