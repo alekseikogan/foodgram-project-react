@@ -207,7 +207,6 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit')
-    amount = serializers.IntegerField(write_only=True, min_value=1)
 
     class Meta:
         model = IngredientRecipe
