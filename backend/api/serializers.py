@@ -263,20 +263,12 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     '''Ингредиент и его количество для создания рецепта'''
     id = serializers.IntegerField()
     amount = serializers.IntegerField(min_value=1)
-    # amount = serializers.IntegerField(
-    #     validators=(
-    #         MinValueValidator(
-    #             1,
-    #             message='Количество ингредиента должно быть 1 мин или более!'
-    #         ),
-    #     )
-    # )
 
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'amount')
 
-    def validate_amount(value):
+    def validate_amount(self, value):
         '''Валидация количества ингредиента'''
         if value <= 0:
             raise serializers.ValidationError(
@@ -294,14 +286,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
     cooking_time = serializers.IntegerField(min_value=1)
-    # cooking_time = serializers.IntegerField(
-    #     validators=(
-    #         MinValueValidator(
-    #             1,
-    #             message='Время приготовления не может быть отрицательным!'
-    #         ),
-    #     )
-    # )
 
     class Meta:
         model = Recipe
@@ -315,15 +299,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if not obj.get('tags'):
             raise serializers.ValidationError(
                 'Пожалуйста укажите как минимум 1 тег!')
-        # if not obj.get('ingredients'):
-        #     raise serializers.ValidationError(
-        #         'Пожалуйста укажите как минимум 1 ингредиент!')
-        # '''Проверка уникальности ингредиентов'''
-        # inrgedients_all = [item['id'] for item in obj.get('ingredients')]
-        # ingredient_unicum = set(inrgedients_all)
-        # if len(ingredient_unicum) != len(inrgedients_all):
-        #     raise serializers.ValidationError(
-        #         'Не должно быть повтора индгредиентов!')
         return obj
     
     def validate_ingredients(self, ingredients):
@@ -343,7 +318,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         return ingredients
 
-    def validate_cooking_time(value):
+    def validate_cooking_time(self, value):
         '''Валидация времени приготовления'''
         if value <= 0:
             raise serializers.ValidationError(
