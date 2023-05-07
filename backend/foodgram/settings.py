@@ -139,6 +139,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:3000', ]
+# CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
