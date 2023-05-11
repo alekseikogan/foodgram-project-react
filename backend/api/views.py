@@ -9,7 +9,7 @@ from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingСart, Tag)
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Subscribe, User
@@ -23,6 +23,10 @@ from .serializers import (IngredientSerializer, RecipeCreateSerializer,
 from .user_permissions import IsAuthorOrReadOnly
 
 
+class CustomPagination(PageNumberPagination):
+    page_size_query_param = 'limit'
+
+
 class UserViewSet(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
@@ -30,7 +34,7 @@ class UserViewSet(mixins.CreateModelMixin,
     '''Вывод, создание пользователей, подписка, смена пароля'''
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -38,7 +42,7 @@ class UserViewSet(mixins.CreateModelMixin,
         return UserCreateSerializer
 
     @action(detail=False, methods=['get'],
-            pagination_class=LimitOffsetPagination,
+            pagination_class=CustomPagination,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
         '''Профиль пользователя'''
@@ -58,7 +62,7 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(detail=False, methods=['get'],
             permission_classes=(IsAuthenticated,),
-            pagination_class=LimitOffsetPagination)
+            pagination_class=CustomPagination)
     def subscriptions(self, request):
         '''Посмотреть подписки пользователя'''
         queryset = User.objects.filter(subscribing__user=request.user)
@@ -124,7 +128,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
@@ -166,7 +170,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(IsAuthenticated,),
-            pagination_class=LimitOffsetPagination)
+            pagination_class=CustomPagination)
     def shopping_cart(self, request, **kwargs):
         '''Добавление или удаление рецепта из списока покупок'''
         recipe = get_object_or_404(Recipe, id=kwargs['pk'])
